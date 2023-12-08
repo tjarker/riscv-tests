@@ -47,7 +47,7 @@
   li x31, 0;
 
 #define RVTEST_CODE_BEGIN                                               \
-        .section .text.init;                                            \
+        .section .text;                                                 \
         .global _start;                                                 \
 _start:                                                                 \
         INIT_XREG;                                                      \
@@ -58,27 +58,34 @@ _start:                                                                 \
 //-----------------------------------------------------------------------
 
 #define RVTEST_CODE_END                                                 \
-        unimp
+        .section .init;                                                 \
+        .global _init_start;                                            \
+_init_start:                                                            \
+        la t0, trap_vector;                                             \
+        csrw mtvec, t0;                                                 \
+        la t0, _start;                                                  \
+        jr t0;                                                          \
+trap_vector:                                                            \
+        la t5, tohost;                                                  \
+        li TESTNUM, 1;                                                  \
+        sw TESTNUM, 0(t5);                                              \
+        sw zero, 4(t5);                                                 \
+1:      j 1b;                                                           \
 
 //-----------------------------------------------------------------------
 // Pass/Fail Macro
 //-----------------------------------------------------------------------
 
 #define RVTEST_PASS                                                     \
-        la t5, tohost;                                                  \
-        li TESTNUM, 1;                                                  \
-        sw TESTNUM, 0(t5);                                              \
-        sw zero, 4(t5);                                                 \
-1:      j 1b;                                                 
+        li a7, 0;                                                  \
+        ecall;                                                          \
+  
 
 #define TESTNUM gp
 #define RVTEST_FAIL                                                     \
-        la t5, tohost;                                                  \
-        slli TESTNUM, TESTNUM, 1;                                      \
-        ori TESTNUM, TESTNUM, 1;                                        \
-        sw TESTNUM, 0(t5);                                              \
-        sw zero, 4(t5);                                                 \
-1:      j 1b; 
+        mv a7, TESTNUM;                                                 \
+        ecall;
+
 
 //-----------------------------------------------------------------------
 // Data Section Macro
