@@ -9,6 +9,8 @@
 // Begin Macro
 //-----------------------------------------------------------------------
 
+#define TESTNUM gp
+
 #define RVTEST_RV32U                                                    \
   .macro init;                                                          \
   .endm
@@ -67,7 +69,6 @@ _init_start:                                                            \
         jr t0;                                                          \
 trap_vector:                                                            \
         la t5, tohost;                                                  \
-        li TESTNUM, 1;                                                  \
         sw TESTNUM, 0(t5);                                              \
         sw zero, 4(t5);                                                 \
 1:      j 1b;                                                           \
@@ -77,13 +78,14 @@ trap_vector:                                                            \
 //-----------------------------------------------------------------------
 
 #define RVTEST_PASS                                                     \
-        li a7, 0;                                                  \
+        li TESTNUM, 1;                                                  \
         ecall;                                                          \
   
 
-#define TESTNUM gp
+
 #define RVTEST_FAIL                                                     \
-        mv a7, TESTNUM;                                                 \
+        sll TESTNUM, TESTNUM, 1;                                        \
+        ori TESTNUM, TESTNUM, 1;                                        \
         ecall;
 
 

@@ -9,6 +9,8 @@
 // Begin Macro
 //-----------------------------------------------------------------------
 
+#define TESTNUM gp
+
 #define RVTEST_RV32U                                                    \
   .macro init;                                                          \
   .endm
@@ -64,14 +66,16 @@ _start:                                                                 \
 //-----------------------------------------------------------------------
 
 #define RVTEST_PASS                                                     \
-        li a7, 0;                                                  \
+        li TESTNUM, 1;                                                  \
         ecall;                                                          \
   
 
-#define TESTNUM gp
+
 #define RVTEST_FAIL                                                     \
-        mv a7, TESTNUM;                                                 \
+        sll TESTNUM, TESTNUM, 1;                                        \
+        ori TESTNUM, TESTNUM, 1;                                        \
         ecall;
+
 
 //-----------------------------------------------------------------------
 // Data Section Macro
